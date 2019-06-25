@@ -1,0 +1,27 @@
+{
+  "name": "local_orm",
+  "version": "1.0.0",
+  "description": "ORM for local json files",
+  "main": "index.js",
+  "scripts": {
+    "build": "babel src --presets babel-preset-es2015 --out-dir lib",
+    "prepublish": "npm run build",
+    "test": "mocha --opts test/mocha.opts test --recursive"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/elliotjberman/local_orm.git"
+  },
+  "author": "Elliot Berman",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/elliotjberman/local_orm/issues"
+  },
+  "homepage": "https://github.com/elliotjberman/local_orm#readme",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "chai": "^4.2.0",
+    "mocha": "^6.1.4"
+  }
+}
