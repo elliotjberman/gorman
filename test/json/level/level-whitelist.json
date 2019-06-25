@@ -1,0 +1,8 @@
+{
+    "biomes":{
+        "path": "test/json/level/adventure/biomes.json"
+    },
+    "customitem": {
+         "path": "test/json/level/addon/customitem.json"
+    }
+}

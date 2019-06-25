@@ -1,0 +1,24 @@
+{
+    "name": "Make Your Own Fishy",
+    "levelId": "biomes",
+    "isRequired": false,
+    "ages": "5+",
+    "img": "coral",
+    "file": "item_sketchsheet.pdf",
+    "overview": "Lorem idagh odsokh dgalk daghkda lghl dk gkdhagl hroiu hwqkl dgah oih adglkh ahgoi qh dgknlagh tihoag gh gh aldkgh toag lkdagh hdkalt idagoth kalgd thidaht aglkh thadgidt adgklth dagioathadg.",
+    "materials": [
+        "(1) Glue Stick",
+        "(3) Paperclips",
+        "(17) Pipe Cleaners"
+    ],
+    "instructions": [
+        {
+            "img": "coral_instruction_1",
+            "text": "Dgalk daghkda lghl dk gkdhagl hroiu hwqkl dgah oih adglkh ahgoi qh dgknlagh tihoag gh gh aldkgh toag lkdagh hdkalt idagoth kalgd."
+        },
+        {
+            "img": "coral_instruction_2",
+            "text": "Dgalk daghkda lghl dk gkdhagl hroiu hwqkl dgah oih adglkh ahgoi qh dgknlagh tihoag gh gh aldkgh toag lkdagh hdkalt idagoth kalgd."
+        }
+    ]
+}
