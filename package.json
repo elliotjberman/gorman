@@ -1,6 +1,6 @@
 {
   "name": "local_orm",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "ORM for local json files",
   "main": "lib/index.js",
   "scripts": {
