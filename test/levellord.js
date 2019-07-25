@@ -1,38 +1,52 @@
 import {expect} from 'chai';
-import OrmBase from '../src/index.js';
+import {GoronReadOnly, persistence_interfaces.InternalJsonInterface} from '../src/index.js';
 
-class Mode extends OrmBase {
-  static idTablePath() {
-    return "test/json/level/mode-whitelist.json"
+class Mode extends GoronReadOnly {
+  constructor(options) {
+    super(options);
+    this.persistenceInterface = new InternalJsonInterface("test/json/levellord")
   }
 
-  levels() {
-    return this.getChildren(Level);
-  }
-}
-
-class Level extends OrmBase {
-  static idTablePath() {
-    return "test/json/level/level-whitelist.json"
+  static get tableName() {
+    return 'mode-whitelist';
   }
 
-  mode() {
-    return this.getParent(Mode);
-  }
-
-  lessons() {
-    return this.getChildren(Lesson);
+  get childMappings() {
+    return {"levels": Level};
   }
 }
 
-class Lesson extends OrmBase {
-  static idTablePath() {
-    return "test/json/level/lesson-whitelist.json"
+class Level extends GoronReadOnly {
+  constructor(options) {
+    super(options);
+    this.persistenceInterface = new InternalJsonInterface("test/json/levellord")
+  }
+  static get tableName() {
+    return 'level-whitelist';
   }
 
-  level() {
-    return this.getParent(Level);
+  get childMappings() {
+      return {"lessons": Lesson};
   }
+
+  get parentMappings() {
+      return {"mode": Mode};
+  }
+}
+
+class Lesson extends GoronReadOnly {
+  constructor(options) {
+    super(options);
+    this.persistenceInterface = new InternalJsonInterface("test/json/levellord");
+  }
+  static get tableName() {
+    return 'lesson-whitelist';
+  }
+
+  get parentMappings() {
+    return {"level": Level};
+  }
+
 }
 
 describe("Parent class Mode", () => {
@@ -71,7 +85,7 @@ describe("Parent class Level", () => {
     let b = new Level("biomes");
     expect(b.mode().name).to.equal("Adventure");
   });
-  
+
 })
 
 describe("Child class Lesson", () => {
