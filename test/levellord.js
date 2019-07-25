@@ -8,7 +8,7 @@ class Mode extends GormanReadOnly {
     super(options);
     this.funFactor = options.funFactor;
   }
-
+  
   static get persistenceInterface() {
     return new Persistence.InternalJsonInterface({jsonDirectory: JSON_DIRECTORY});
   }
@@ -52,11 +52,11 @@ class Lesson extends GormanReadOnly {
   static get persistenceInterface() {
     return new Persistence.InternalJsonInterface({jsonDirectory: JSON_DIRECTORY})
   }
-
+  
   static get tableName() {
     return 'lesson-whitelist';
   }
-
+  
   get parentMappings() {
     return {"level": Level};
   }
