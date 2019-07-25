@@ -11,7 +11,7 @@ export default class GormanReadOnly {
 
     Object.keys(this.parentMappings).forEach(key => {
       const classType = this.parentMappings[key];
-      const parentKey = Gorman.classNameToIdName(classType.name);
+      const parentKey = GormanReadOnly.classNameToIdName(classType.name);
       this[parentKey] = options[parentKey]
       Object.defineProperty(this, key, {
         get: this.getParentFactory(classType)

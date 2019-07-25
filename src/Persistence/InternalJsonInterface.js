@@ -36,15 +36,16 @@ export default class InternalJsonInterface {
   // TODO: Add support for $ne operators and the like
   async filterRecords(tableName, query) {
     const idTable = await readJsonAtPath(path.join(this.jsonDirectory, `${tableName}.json`));
-    const allModels = Object.entries(idTable).map(async ([id, modelPath]) => {
-      const modelData = await getModelById(tableName, id);
+    const modelPromises = Object.entries(idTable).map(async ([id, modelPath]) => {
+      const modelData = await this.getModelById(tableName, id);
       return modelData;
     });
 
-    const filteredModels = {};
+    const allModels = await Promise.all(modelPromises);
+
     const querySteps = Object.entries(query);
     return allModels.filter(model => {
-      return querySteps.all(step => queryComparison(step, model));
+      return querySteps.every(step => queryComparison(step, model));
     });
   }
 }

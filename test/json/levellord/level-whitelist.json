@@ -1,5 +1,8 @@
 {
     "biomes":{
-        "path": "adventure/biomes.json"
+        "path": "levels/biomes.json"
+    },
+    "cities":{
+        "path": "levels/city-junk.json"
     }
 }

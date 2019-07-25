@@ -1,0 +1,16 @@
+{
+    "modeId": "adventure",
+    "name": "Cities",
+    "items": [
+        {"destination": "new york"},
+        {"destination": "boston"},
+        {"destination": "los angeles"}
+    ],
+    "info": {
+        "minAge": 6,
+        "overview": "See cities.",
+        "requiredMats": [],
+        "optionalMats": [],
+        "instructions": "What is this for?"
+    }
+}

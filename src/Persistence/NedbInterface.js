@@ -25,91 +25,89 @@ function createDoc(modelInstance, isNew) {
   return doc;
 }
 
-function getDbSingleton(collection) {
+function getDbSingleton(directory, collection) {
   if (DB_SINGLETONS[collection] === undefined)
     DB_SINGLETONS[collection] = new Datastore({ filename: path.join(USER_DATA_DIRECTORY, collection + ".db"), autoload: true, timestampData: true });
   return DB_SINGLETONS[collection];
 }
 
-async function insertModel(db, modelInstance) {
-  return new Promise((resolve, reject) => {
-    const doc = createDoc(modelInstance);
-
-    db.insert(doc, (err, newDoc) => {
-      if (err) reject(err);
-      modelInstance.id = newDoc._id;
-      resolve(modelInstance);
-    });
-  });
-}
-
-async function updateModel(db, modelInstance) {
-  return new Promise((resolve, reject) => {
-    const doc = createDoc(modelInstance);
-
-    db.update({_id: modelInstance.id}, {$set: doc}, {}, (err) => {
-      if (err) reject(err);
-      resolve(modelInstance);
-    });
-  });
-}
-
-async function saveModel(modelInstance) {
-  const db = getDbSingleton(modelInstance.constructor.tableName);
-  if (!modelInstance.id) {
-    await insertModel(db, modelInstance);
-    return;
+export default class NedbInterface {
+  constructor(options) {
+    this.directory = options.directory;
   }
-  await updateModel(db, modelInstance);
-}
 
-async function deleteModel(modelInstance) {
-  if (!modelInstance.id)
-    throw Error(`Trying to delete instance of ${modelInstance.constructor.name} that has no id. Have you saved it?`);
+  async insertModel(db, modelInstance) {
+    return new Promise((resolve, reject) => {
+      const doc = createDoc(modelInstance);
 
-  return new Promise((resolve, reject) => {
-    const db = getDbSingleton(modelInstance.constructor.tableName);
-    db.remove({_id: modelInstance.id}, {}, (err, docs) => {
-      if (err) reject(err);
-      resolve(docs);
+      db.insert(doc, (err, newDoc) => {
+        if (err) reject(err);
+        modelInstance.id = newDoc._id;
+        resolve(modelInstance);
+      });
     });
-  });
-}
+  }
 
-async function getModelById(tableName, id) {
-  return new Promise((resolve, reject) => {
-    const db = getDbSingleton(tableName);
-    db.findOne({_id: id}, (err, doc) => {
-      if (err) reject(err);
-      resolve(doc);
+  async updateModel(db, modelInstance) {
+    return new Promise((resolve, reject) => {
+      const doc = createDoc(modelInstance);
+
+      db.update({_id: modelInstance.id}, {$set: doc}, {}, (err) => {
+        if (err) reject(err);
+        resolve(modelInstance);
+      });
     });
-  });
-}
+  }
 
-async function filterRecords(tableName, query) {
-  return new Promise((resolve, reject) => {
-    const db = getDbSingleton(tableName);
-    db.find(query, {}, (err, docs) => {
-      if (err) reject(err);
-      resolve(docs || []);
+  async saveModel(modelInstance) {
+    const db = getDbSingleton(this.directory, modelInstance.constructor.tableName);
+    if (!modelInstance.id) {
+      await insertModel(db, modelInstance);
+      return;
+    }
+    await updateModel(db, modelInstance);
+  }
+
+  async deleteModel(modelInstance) {
+    if (!modelInstance.id)
+      throw Error(`Trying to delete instance of ${modelInstance.constructor.name} that has no id. Have you saved it?`);
+
+    return new Promise((resolve, reject) => {
+      const db = getDbSingleton(this.directory, modelInstance.constructor.tableName);
+      db.remove({_id: modelInstance.id}, {}, (err, docs) => {
+        if (err) reject(err);
+        resolve(docs);
+      });
     });
-  });
-}
+  }
 
-async function countRecords(tableName, query) {
-  return new Promise((resolve, reject) => {
-    const db = getDbSingleton(tableName);
-    db.count(query, (err, count) => {
-      if (err) reject(err);
-      resolve(count);
+  async getModelById(tableName, id) {
+    return new Promise((resolve, reject) => {
+      const db = getDbSingleton(this.directory, tableName);
+      db.findOne({_id: id}, (err, doc) => {
+        if (err) reject(err);
+        resolve(doc);
+      });
     });
-  });
-}
+  }
 
-export default {
-  saveModel,
-  deleteModel,
-  getModelById,
-  filterRecords,
-  countRecords
+  async filterRecords(tableName, query) {
+    return new Promise((resolve, reject) => {
+      const db = getDbSingleton(this.directory, tableName);
+      db.find(query, {}, (err, docs) => {
+        if (err) reject(err);
+        resolve(docs || []);
+      });
+    });
+  }
+
+  async countRecords(tableName, query) {
+    return new Promise((resolve, reject) => {
+      const db = getDbSingleton(this.directory, tableName);
+      db.count(query, (err, count) => {
+        if (err) reject(err);
+        resolve(count);
+      });
+    });
+  }
 }

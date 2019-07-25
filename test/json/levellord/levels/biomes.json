@@ -7,8 +7,7 @@
         {"destination": "desert"}
     ],
     "info": {
-        "associatedMode": "adventure",
-        "ages": "All",
+        "minAge": 0,
         "overview": "Go explore the world.",
         "requiredMats": [{
             "name": "Fish Toy",
