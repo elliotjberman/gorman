@@ -1,5 +1,5 @@
 {
     "adventure": {
-      "path": "test/json/level/modes/adventure.json"
+      "path": "modes/adventure.json"
     }
 }

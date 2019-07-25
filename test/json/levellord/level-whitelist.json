@@ -1,5 +1,5 @@
 {
     "biomes":{
-        "path": "test/json/level/adventure/biomes.json"
+        "path": "adventure/biomes.json"
     }
 }
