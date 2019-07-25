@@ -1,11 +1,14 @@
-import Goron from './abstract_classes/Goron';
-import GoronReadOnly from './abstract_classes/GoronReadOnly';
-import InternalJsonInterface from './InternalJsonInterface';
+import "regenerator-runtime/runtime";
+import GormanReadOnly from './BaseGormans/GormanReadOnly';
+import GormanWriteable from './BaseGormans/GormanWriteable';
+import InternalJsonInterface from './Persistence/InternalJsonInterface';
+
+const Persistence = {
+    InternalJsonInterface
+}
 
 export {
-  Goron,
-  GoronReadOnly,
-  persistence_interfaces: {
-    InternalJsonInterface
-  }
+  GormanReadOnly,
+  GormanWriteable,
+  Persistence,
 }

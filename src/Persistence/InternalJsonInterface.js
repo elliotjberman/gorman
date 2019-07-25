@@ -1,0 +1,50 @@
+import path from 'path';
+import fs from 'fs';
+
+function readJsonAtPath(path) {
+  return new Promise((resolve, reject) => {
+    fs.readFile(path, (err, data) => {
+      if (err) reject(err);
+      resolve(JSON.parse(data));
+    });
+  });
+}
+
+async function getModelFromPath(fullModelPath, id) {
+  const modelWithoutId = await readJsonAtPath(fullModelPath);
+  return {...modelWithoutId, id};
+}
+
+function queryComparison(queryStep, model) {
+  const [key, value] = queryStep;
+  return model[key] === value;
+}
+
+// READ-ONLY
+export default class InternalJsonInterface {
+  constructor(options) {
+    this.jsonDirectory = options.jsonDirectory || './';
+  }
+
+  async getModelById(tableName, id) {
+    const idTable = await readJsonAtPath(path.join(this.jsonDirectory, `${tableName}.json`));
+    const modelPath = idTable[id].path; //TODO: Handle errors
+    const modelData = await getModelFromPath(path.join(this.jsonDirectory, `${modelPath}`), id);
+    return modelData;
+  }
+
+  // TODO: Add support for $ne operators and the like
+  async filterRecords(tableName, query) {
+    const idTable = await readJsonAtPath(path.join(this.jsonDirectory, `${tableName}.json`));
+    const allModels = Object.entries(idTable).map(async ([id, modelPath]) => {
+      const modelData = await getModelById(tableName, id);
+      return modelData;
+    });
+
+    const filteredModels = {};
+    const querySteps = Object.entries(query);
+    return allModels.filter(model => {
+      return querySteps.all(step => queryComparison(step, model));
+    });
+  }
+}
