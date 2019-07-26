@@ -101,7 +101,6 @@ describe("class Level", () => {
     expect(bio.name).to.equal("Cities");
   });
 
-
   it("should have a child level 'Make Your Own Fishy'", async () => {
     let bio = await Level.summonById("biomes");
     const lessons = await bio.lessons;
@@ -112,6 +111,10 @@ describe("class Level", () => {
     let bio = await Level.summonById("biomes");
     const mode= await bio.mode;
     expect(mode.name).to.equal("Adventure");
+  });
+
+  it("should have a count of 2", async () => {
+    expect(await Level.count()).to.equal(2);
   });
 
 })

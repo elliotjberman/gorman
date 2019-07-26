@@ -109,9 +109,8 @@ class Photo extends GormanWriteable {
 describe("class Group", () => {
   it("should be able to be created and saved and have an id", async () => {
     const group = new Group({name: "Test Group 1"});
-    expect(group.id).to.equal(undefined);
     await group.save();
-    expect(group).to.have.property("id");
+    expect(group.id).not.to.equal(undefined);
   });
 
   it("should be able to be created and recalled by name", async () => {
@@ -121,7 +120,17 @@ describe("class Group", () => {
     expect(groups.length).to.equal(1);
     const sameGroup = groups[0];
     expect(sameGroup.id).to.equal(group.id);
-  })
+  });
+
+  it("should work with count", async () => {
+    const group3a = new Group({name: "Test Group 3"});
+    await group3a.save();
+    const group3b = new Group({name: "Test Group 3"});
+    await group3b.save();
+    const group3c = new Group({name: "Test Group 3"});
+    await group3c.save();
+    expect(await Group.count({name: "Test Group 3"})).to.equal(3);
+  });
 });
 
 /********************/

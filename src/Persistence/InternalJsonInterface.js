@@ -48,4 +48,9 @@ export default class InternalJsonInterface {
       return querySteps.every(step => queryComparison(step, model));
     });
   }
+
+  async countRecords(tableName, query) {
+    const filteredRecords = await this.filterRecords(tableName, query);
+    return filteredRecords.length;
+  }
 }

@@ -49,6 +49,11 @@ export default class GormanReadOnly {
     return records;
   }
 
+  static async count(query={}) {
+    const count = await this.persistenceInterface.countRecords(this.tableName, query);
+    return count;
+  }
+
 /***************************/
 /******** RELATIONS ********/
 /***************************/
