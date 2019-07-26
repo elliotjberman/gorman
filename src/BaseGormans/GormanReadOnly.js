@@ -45,7 +45,7 @@ export default class GormanReadOnly {
   }
 
   static async all() {
-    const records = await this.constructor.filter({});
+    const records = await this.filter({});
     return records;
   }
 

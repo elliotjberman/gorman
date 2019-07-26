@@ -87,6 +87,11 @@ describe("class Mode", () => {
     expect(levels.some(level => level.name === "Biomes"));
   });
 
+  it("should work with all()", async () => {
+    const modes = await Mode.all();
+    expect(modes.length).to.equal(1);
+  });
+
 })
 
 describe("class Level", () => {
