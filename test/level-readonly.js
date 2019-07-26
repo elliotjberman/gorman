@@ -1,7 +1,11 @@
 import {expect} from 'chai';
 import {GormanReadOnly, Persistence,} from '../src/index.js';
 
-const JSON_DIRECTORY = "test/json/levellord";
+const JSON_DIRECTORY = "test/json/level-readonly";
+
+/********************/
+/*** TEST CLASSES ***/
+/********************/
 
 class Mode extends GormanReadOnly {
   constructor(options) {
@@ -11,7 +15,7 @@ class Mode extends GormanReadOnly {
   }
 
   static get persistenceInterface() {
-    return new Persistence.InternalJsonInterface({jsonDirectory: JSON_DIRECTORY});
+    return new Persistence.InternalJsonInterface({directory: JSON_DIRECTORY});
   }
 
   static get tableName() {
@@ -30,7 +34,7 @@ class Level extends GormanReadOnly {
   }
 
   static get persistenceInterface() {
-    return new Persistence.InternalJsonInterface({jsonDirectory: JSON_DIRECTORY})
+    return new Persistence.InternalJsonInterface({directory: JSON_DIRECTORY})
   }
 
   static get tableName() {
@@ -53,7 +57,7 @@ class Lesson extends GormanReadOnly {
   }
 
   static get persistenceInterface() {
-    return new Persistence.InternalJsonInterface({jsonDirectory: JSON_DIRECTORY})
+    return new Persistence.InternalJsonInterface({directory: JSON_DIRECTORY})
   }
 
   static get tableName() {
@@ -65,6 +69,10 @@ class Lesson extends GormanReadOnly {
   }
 
 }
+
+/********************/
+/****** TESTS  ******/
+/********************/
 
 describe("class Mode", () => {
 

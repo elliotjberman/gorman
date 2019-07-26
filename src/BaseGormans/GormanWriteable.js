@@ -17,13 +17,13 @@ export default class GormanWriteable extends GormanReadOnly {
   }
 
   async save() {
-    await this.persistenceInterface.saveModel(this);
+    await this.constructor.persistenceInterface.saveModel(this);
     return;
   }
 
   // TODO: Known bug - missing cascading delete
   async delete() {
-    await this.persistenceInterface.deleteModel(this);
+    await this.constructor.persistenceInterface.deleteModel(this);
     return;
   }
 

@@ -23,19 +23,19 @@ function queryComparison(queryStep, model) {
 // READ-ONLY
 export default class InternalJsonInterface {
   constructor(options) {
-    this.jsonDirectory = options.jsonDirectory || './';
+    this.directory = options.directory || './';
   }
 
   async getModelById(tableName, id) {
-    const idTable = await readJsonAtPath(path.join(this.jsonDirectory, `${tableName}.json`));
+    const idTable = await readJsonAtPath(path.join(this.directory, `${tableName}.json`));
     const modelPath = idTable[id].path; //TODO: Handle errors
-    const modelData = await getModelFromPath(path.join(this.jsonDirectory, `${modelPath}`), id);
+    const modelData = await getModelFromPath(path.join(this.directory, `${modelPath}`), id);
     return modelData;
   }
 
   // TODO: Add support for $ne operators and the like
   async filterRecords(tableName, query) {
-    const idTable = await readJsonAtPath(path.join(this.jsonDirectory, `${tableName}.json`));
+    const idTable = await readJsonAtPath(path.join(this.directory, `${tableName}.json`));
     const modelPromises = Object.entries(idTable).map(async ([id, modelPath]) => {
       const modelData = await this.getModelById(tableName, id);
       return modelData;

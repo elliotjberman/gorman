@@ -1,12 +1,7 @@
-// TODO: Make this work without electron
-
 import path from 'path';
-import electron from 'electron';
 import Datastore from 'nedb';
 
-const USER_DATA_DIRECTORY = (electron.app || electron.remote.app).getPath('userData');
 const DB_SINGLETONS = {}; // Note: A rarely sanctioned use of globals
-
 
 // Helpers
 function createDoc(modelInstance, isNew) {
@@ -26,9 +21,15 @@ function createDoc(modelInstance, isNew) {
 }
 
 function getDbSingleton(directory, collection) {
-  if (DB_SINGLETONS[collection] === undefined)
-    DB_SINGLETONS[collection] = new Datastore({ filename: path.join(USER_DATA_DIRECTORY, collection + ".db"), autoload: true, timestampData: true });
-  return DB_SINGLETONS[collection];
+  if (DB_SINGLETONS[directory + collection] === undefined)
+    DB_SINGLETONS[directory + collection] = new Datastore({ filename: path.join(directory, collection + ".db"), autoload: true, timestampData: true });
+  return DB_SINGLETONS[directory + collection];
+}
+
+function translateId(doc) {
+  const docWithId = {...doc, id: doc._id};
+  delete docWithId._id;
+  return docWithId;
 }
 
 export default class NedbInterface {
@@ -43,7 +44,7 @@ export default class NedbInterface {
       db.insert(doc, (err, newDoc) => {
         if (err) reject(err);
         modelInstance.id = newDoc._id;
-        resolve(modelInstance);
+        resolve(translateId(modelInstance));
       });
     });
   }
@@ -54,7 +55,7 @@ export default class NedbInterface {
 
       db.update({_id: modelInstance.id}, {$set: doc}, {}, (err) => {
         if (err) reject(err);
-        resolve(modelInstance);
+        resolve(translateId(modelInstance));
       });
     });
   }
@@ -62,10 +63,10 @@ export default class NedbInterface {
   async saveModel(modelInstance) {
     const db = getDbSingleton(this.directory, modelInstance.constructor.tableName);
     if (!modelInstance.id) {
-      await insertModel(db, modelInstance);
+      await this.insertModel(db, modelInstance);
       return;
     }
-    await updateModel(db, modelInstance);
+    await this.updateModel(db, modelInstance);
   }
 
   async deleteModel(modelInstance) {
@@ -86,17 +87,21 @@ export default class NedbInterface {
       const db = getDbSingleton(this.directory, tableName);
       db.findOne({_id: id}, (err, doc) => {
         if (err) reject(err);
-        resolve(doc);
+        resolve(translateId(doc));
       });
     });
   }
 
   async filterRecords(tableName, query) {
+    if (query.id) {
+      query._id = query.id;
+      delete query.id;
+    }
     return new Promise((resolve, reject) => {
       const db = getDbSingleton(this.directory, tableName);
       db.find(query, {}, (err, docs) => {
         if (err) reject(err);
-        resolve(docs || []);
+        resolve(docs.map(translateId) || []);
       });
     });
   }
