@@ -27,6 +27,8 @@ function getDbSingleton(directory, collection) {
       DB_SINGLETONS[directory + collection] = new Datastore({ filename: path.join(directory, collection + ".db"), autoload: true, timestampData: true });
     }
     catch(e) {
+      console.warn("Error trying to open NEDB file");    
+      console.warn(e);
       retries-=1;
       if (retries === 0) {
         throw e;
@@ -95,9 +97,12 @@ export default class NedbInterface {
   async getModelById(tableName, id) {
     return new Promise((resolve, reject) => {
       const db = getDbSingleton(this.directory, tableName);
-      db.findOne({_id: id}, (err, doc) => {
+      db.loadDatabase((err) => {
         if (err) reject(err);
-        resolve(translateId(doc));
+        db.findOne({_id: id}, (err, doc) => {
+          if (err) reject(err);
+          resolve(translateId(doc));
+        });
       });
     });
   }
@@ -109,9 +114,12 @@ export default class NedbInterface {
     }
     return new Promise((resolve, reject) => {
       const db = getDbSingleton(this.directory, tableName);
-      db.find(query, {}, (err, docs) => {
+      db.loadDatabase((err) => {
         if (err) reject(err);
-        resolve(docs.map(translateId) || []);
+        db.find(query, {}, (err, docs) => {
+          if (err) reject(err);
+          resolve(docs.map(translateId) || []);
+        });
       });
     });
   }
@@ -119,9 +127,12 @@ export default class NedbInterface {
   async countRecords(tableName, query) {
     return new Promise((resolve, reject) => {
       const db = getDbSingleton(this.directory, tableName);
-      db.count(query, (err, count) => {
+      db.loadDatabase((err) => {
         if (err) reject(err);
-        resolve(count);
+        db.count(query, (err, count) => {
+          if (err) reject(err);
+          resolve(count);
+        });
       });
     });
   }
