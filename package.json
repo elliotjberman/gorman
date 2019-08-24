@@ -1,6 +1,6 @@
 {
   "name": "Gorman",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "The Grand ORM => GORM => Gorman",
   "main": "lib/index.js",
   "scripts": {
