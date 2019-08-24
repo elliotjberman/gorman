@@ -21,8 +21,18 @@ function createDoc(modelInstance, isNew) {
 }
 
 function getDbSingleton(directory, collection) {
-  if (DB_SINGLETONS[directory + collection] === undefined)
-    DB_SINGLETONS[directory + collection] = new Datastore({ filename: path.join(directory, collection + ".db"), autoload: true, timestampData: true });
+  let retries = 50;
+  while (DB_SINGLETONS[directory + collection] === undefined) {
+    try {
+      DB_SINGLETONS[directory + collection] = new Datastore({ filename: path.join(directory, collection + ".db"), autoload: true, timestampData: true });
+    }
+    catch(e) {
+      retries-=1;
+      if (retries === 0) {
+        throw e;
+      }
+    }
+  }
   return DB_SINGLETONS[directory + collection];
 }
 
