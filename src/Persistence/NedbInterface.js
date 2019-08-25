@@ -27,7 +27,7 @@ function getDbSingleton(directory, collection) {
       DB_SINGLETONS[directory + collection] = new Datastore({ filename: path.join(directory, collection + ".db"), autoload: true, timestampData: true });
     }
     catch(e) {
-      console.warn("Error trying to open NEDB file");    
+      console.warn("Error trying to open NEDB file");
       console.warn(e);
       retries-=1;
       if (retries === 0) {
@@ -36,6 +36,10 @@ function getDbSingleton(directory, collection) {
     }
   }
   return DB_SINGLETONS[directory + collection];
+}
+
+async function refreshDb(db) {
+  await db.loadDatabase();
 }
 
 function translateId(doc) {
@@ -94,45 +98,39 @@ export default class NedbInterface {
     });
   }
 
-  async getModelById(tableName, id) {
-    return new Promise((resolve, reject) => {
+  async getModelById(tableName, id, refresh=false) {
+    return new Promise(async (resolve, reject) => {
       const db = getDbSingleton(this.directory, tableName);
-      db.loadDatabase((err) => {
+      if (refresh) await refreshDb(db);
+      db.findOne({_id: id}, (err, doc) => {
         if (err) reject(err);
-        db.findOne({_id: id}, (err, doc) => {
-          if (err) reject(err);
-          resolve(translateId(doc));
-        });
+        resolve(translateId(doc));
       });
     });
   }
 
-  async filterRecords(tableName, query) {
+  async filterRecords(tableName, query, refresh=false) {
     if (query.id) {
       query._id = query.id;
       delete query.id;
     }
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       const db = getDbSingleton(this.directory, tableName);
-      db.loadDatabase((err) => {
+      if (refresh) await refreshDb(db);
+      db.find(query, {}, (err, docs) => {
         if (err) reject(err);
-        db.find(query, {}, (err, docs) => {
-          if (err) reject(err);
-          resolve(docs.map(translateId) || []);
-        });
+        resolve(docs.map(translateId) || []);
       });
     });
   }
 
-  async countRecords(tableName, query) {
-    return new Promise((resolve, reject) => {
+  async countRecords(tableName, query, refresh=false) {
+    return new Promise(async (resolve, reject) => {
       const db = getDbSingleton(this.directory, tableName);
-      db.loadDatabase((err) => {
+      if (refresh) await refreshDb(db);
+      db.count(query, (err, count) => {
         if (err) reject(err);
-        db.count(query, (err, count) => {
-          if (err) reject(err);
-          resolve(count);
-        });
+        resolve(count);
       });
     });
   }
