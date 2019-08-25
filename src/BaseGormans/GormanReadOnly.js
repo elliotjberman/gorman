@@ -19,6 +19,10 @@ export default class GormanReadOnly {
     });
   }
 
+  static get forceRefresh() {
+    return false;
+  }
+
   // Internal static methods
   static get persistenceInterface() {
     throw Error(`Class '${this.constructor.name}' does not implement the persistenceInterface getter`);
@@ -33,12 +37,12 @@ export default class GormanReadOnly {
   }
 
   static async summonById(id) {
-    const doc = await this.persistenceInterface.getModelById(this.tableName, id);
+    const doc = await this.persistenceInterface.getModelById(this.tableName, id, this.forceRefresh);
     return new this(doc);
   }
 
   static async filter(query) {
-    const records = await this.persistenceInterface.filterRecords(this.tableName, query);
+    const records = await this.persistenceInterface.filterRecords(this.tableName, query, this.forceRefresh);
     return records.map(record => {
       return new this(record);
     });
@@ -50,7 +54,7 @@ export default class GormanReadOnly {
   }
 
   static async count(query={}) {
-    const count = await this.persistenceInterface.countRecords(this.tableName, query);
+    const count = await this.persistenceInterface.countRecords(this.tableName, query, this.forceRefresh);
     return count;
   }
 
