@@ -5,7 +5,10 @@ export default class GormanReadOnly {
 
     Object.keys(this.childMappings).forEach(key => {
       Object.defineProperty(this, key, {
-        get: this.getChildrenFactory(this.childMappings[key])
+        get: this.getChildrenFactory(this.childMappings[key], false)
+      });
+      Object.defineProperty(this, key+"Forced", {
+        get: this.getChildrenFactory(this.childMappings[key], true)
       });
     });
 
@@ -14,13 +17,12 @@ export default class GormanReadOnly {
       const parentKey = GormanReadOnly.classNameToIdName(classType.name);
       this[parentKey] = options[parentKey]
       Object.defineProperty(this, key, {
-        get: this.getParentFactory(classType)
+        get: this.getParentFactory(classType, false)
+      });
+      Object.defineProperty(this, key+"Forced", {
+        get: this.getParentFactory(classType, true)
       });
     });
-  }
-
-  static get forceRefresh() {
-    return false;
   }
 
   // Internal static methods
@@ -36,13 +38,13 @@ export default class GormanReadOnly {
     return className.toLowerCase() + "Id";
   }
 
-  static async summonById(id) {
-    const doc = await this.persistenceInterface.getModelById(this.tableName, id, this.forceRefresh);
+  static async summonById(id, forceRefresh=false) {
+    const doc = await this.persistenceInterface.getModelById(this.tableName, id, forceRefresh);
     return new this(doc);
   }
 
-  static async filter(query) {
-    const records = await this.persistenceInterface.filterRecords(this.tableName, query, this.forceRefresh);
+  static async filter(query, forceRefresh=false) {
+    const records = await this.persistenceInterface.filterRecords(this.tableName, query, forceRefresh);
     return records.map(record => {
       return new this(record);
     });
@@ -53,8 +55,8 @@ export default class GormanReadOnly {
     return records;
   }
 
-  static async count(query={}) {
-    const count = await this.persistenceInterface.countRecords(this.tableName, query, this.forceRefresh);
+  static async count(query={}, forceRefresh=false) {
+    const count = await this.persistenceInterface.countRecords(this.tableName, query, forceRefresh);
     return count;
   }
 
@@ -68,18 +70,18 @@ export default class GormanReadOnly {
       return {};
   }
 
-  async getChildren(classType) {
+  async getChildren(classType, forceRefresh) {
     if (!this.id)
       throw Error(`Calling getChildren on class ${this.constructor.name} before id has been retrieved`);
 
     const fieldName = GormanReadOnly.classNameToIdName(this.constructor.name);
-    const children = await classType.filter({[fieldName]: this.id});
+    const children = await classType.filter({[fieldName]: this.id}, forceRefresh);
     return children;
   }
 
-  getChildrenFactory(classType) {
+  getChildrenFactory(classType, forceRefresh) {
     return async () => {
-       return await this.getChildren(classType);
+       return await this.getChildren(classType, forceRefresh);
     };
   }
 
@@ -89,15 +91,15 @@ export default class GormanReadOnly {
       return {};
   }
 
-  async getParent(classType) {
+  async getParent(classType, forceRefresh) {
     const parentId = this[GormanReadOnly.classNameToIdName(classType.name)];
-    const parent = await classType.summonById(parentId);
+    const parent = await classType.summonById(parentId, forceRefresh);
     return parent;
   }
 
-  getParentFactory(classType) {
+  getParentFactory(classType, forceRefresh) {
     return async () => {
-       return await this.getParent(classType);
+       return await this.getParent(classType, forceRefresh);
     };
   }
 
