@@ -131,6 +131,37 @@ describe("class Group", () => {
     await group3c.save();
     expect(await Group.count({name: "Test Group 3"})).to.equal(3);
   });
+
+  it("should work with forceRefresh", async () => {
+    const group = new Group({name: "Test Group 4  "});
+    await group.save();
+    const groups = await Group.filter({name: group.name}, true);
+    expect(groups.length).to.equal(1);
+    const sameGroup = groups[0];
+    expect(sameGroup.id).to.equal(group.id);
+  });
+});
+
+describe("class Playthrough", () => {
+  it("should be able to be created and saved and have an id", async () => {
+    const group = new Group({name: "Test Group Playthrough 1"});
+    await group.save();
+    const pt = new Playthrough({start: Date.now(), config: {}, groupId: group.id});
+    await pt.save();
+    expect(pt.id).not.to.equal(undefined);
+  });
+
+  it("should be able to be retrieved by group via forceRefresh", async () => {
+    const group = new Group({name: "Test Group Playthrough 2"});
+    await group.save();
+    const pt = new Playthrough({start: Date.now(), config: {}, groupId: group.id});
+    await pt.save();
+
+    const ptId = pt.id;
+    const playthroughs = await group.playthroughsForced;
+
+    expect(playthroughs[0].id).to.equal(ptId);
+  });
 });
 
 /********************/
