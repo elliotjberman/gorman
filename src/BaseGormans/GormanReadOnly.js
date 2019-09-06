@@ -25,6 +25,10 @@ export default class GormanReadOnly {
     });
   }
 
+  static get forceRefresh() {
+    return false;
+  }
+
   // Internal static methods
   static get persistenceInterface() {
     throw Error(`Class '${this.constructor.name}' does not implement the persistenceInterface getter`);
