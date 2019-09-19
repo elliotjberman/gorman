@@ -20,8 +20,13 @@ function createDoc(modelInstance, isNew) {
   return doc;
 }
 
-function getDbSingleton(directory, collection) {
-  let retries = 50;
+function timeout(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function getDbSingleton(directory, collection) {
+  let retries = 20;
+  const timeout = 50; // 50ms
   while (DB_SINGLETONS[directory + collection] === undefined) {
     try {
       DB_SINGLETONS[directory + collection] = new Datastore({ filename: path.join(directory, collection + ".db"), autoload: true, timestampData: true });
@@ -30,9 +35,8 @@ function getDbSingleton(directory, collection) {
       console.warn("Error trying to open NEDB file");
       console.warn(e);
       retries-=1;
-      if (retries === 0) {
-        throw e;
-      }
+      if (retries === 0) throw e;
+      await timeout(50);
     }
   }
   return DB_SINGLETONS[directory + collection];
@@ -54,7 +58,7 @@ export default class NedbInterface {
   }
 
   async insertModel(db, modelInstance) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       const doc = createDoc(modelInstance);
 
       db.insert(doc, (err, newDoc) => {
@@ -66,7 +70,7 @@ export default class NedbInterface {
   }
 
   async updateModel(db, modelInstance) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       const doc = createDoc(modelInstance);
 
       db.update({_id: modelInstance.id}, {$set: doc}, {}, (err) => {
@@ -77,7 +81,7 @@ export default class NedbInterface {
   }
 
   async saveModel(modelInstance) {
-    const db = getDbSingleton(this.directory, modelInstance.constructor.tableName);
+    const db = await getDbSingleton(this.directory, modelInstance.constructor.tableName);
     if (!modelInstance.id) {
       await this.insertModel(db, modelInstance);
       return;
@@ -89,8 +93,8 @@ export default class NedbInterface {
     if (!modelInstance.id)
       throw Error(`Trying to delete instance of ${modelInstance.constructor.name} that has no id. Have you saved it?`);
 
-    return new Promise((resolve, reject) => {
-      const db = getDbSingleton(this.directory, modelInstance.constructor.tableName);
+    return new Promise(async (resolve, reject) => {
+      const db = await getDbSingleton(this.directory, modelInstance.constructor.tableName);
       db.remove({_id: modelInstance.id}, {}, (err, docs) => {
         if (err) reject(err);
         resolve(docs);
@@ -100,7 +104,7 @@ export default class NedbInterface {
 
   async getModelById(tableName, id, refresh=false) {
     return new Promise(async (resolve, reject) => {
-      const db = getDbSingleton(this.directory, tableName);
+      const db = await getDbSingleton(this.directory, tableName);
       if (refresh) await refreshDb(db);
       db.findOne({_id: id}, (err, doc) => {
         if (err) reject(err);
@@ -115,7 +119,7 @@ export default class NedbInterface {
       delete query.id;
     }
     return new Promise(async (resolve, reject) => {
-      const db = getDbSingleton(this.directory, tableName);
+      const db = await getDbSingleton(this.directory, tableName);
       if (refresh) await refreshDb(db);
       db.find(query, {}, (err, docs) => {
         if (err) reject(err);
@@ -126,7 +130,7 @@ export default class NedbInterface {
 
   async countRecords(tableName, query, refresh=false) {
     return new Promise(async (resolve, reject) => {
-      const db = getDbSingleton(this.directory, tableName);
+      const db = await getDbSingleton(this.directory, tableName);
       if (refresh) await refreshDb(db);
       db.count(query, (err, count) => {
         if (err) reject(err);
