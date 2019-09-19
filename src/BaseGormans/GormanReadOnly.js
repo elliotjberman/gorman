@@ -1,5 +1,6 @@
 export default class GormanReadOnly {
   constructor(options) {
+    throw Error(“fuck”);
     if (new.target === GormanReadOnly) throw Error("GormanReadOnly is an abstract base class - ya blew it!");
     this.id = options.id;
 
