@@ -20,7 +20,7 @@ function createDoc(modelInstance, isNew) {
   return doc;
 }
 
-function timeout(ms) {
+function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
@@ -36,7 +36,7 @@ async function getDbSingleton(directory, collection) {
       console.warn(e);
       retries-=1;
       if (retries === 0) throw e;
-      await timeout(50);
+      await sleep(50);
     }
   }
   return DB_SINGLETONS[directory + collection];
