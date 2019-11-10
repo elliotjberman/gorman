@@ -24,11 +24,9 @@
     "@babel/preset-env": "^7.5.5",
     "@babel/register": "^7.5.5",
     "chai": "^4.2.0",
-    "mocha": "^6.1.4",
-    "regenerator-runtime": "^0.13.3"
+    "mocha": "^6.1.4"
   },
   "dependencies": {
-    "core-js": "^3.1.4",
     "nedb": "^1.8.0"
   }
 }
